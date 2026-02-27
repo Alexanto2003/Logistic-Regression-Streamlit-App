@@ -4,29 +4,29 @@ import numpy as np
 
 # ---------------- PAGE CONFIG ----------------
 st.set_page_config(
-    page_title="Logistic Regression ML App",
-    page_icon="📊",
+    page_title="Diabetes Prediction App",
+    page_icon="🩺",
     layout="wide"
 )
 
-# ---------------- CUSTOM STYLING ----------------
+# ---------------- CUSTOM CSS ----------------
 st.markdown("""
-    <style>
-    .main {
-        background-color: #f5f7fa;
-    }
-    .stButton>button {
-        background-color: #4CAF50;
-        color: white;
-        font-size: 16px;
-        border-radius: 8px;
-        height: 3em;
-        width: 100%;
-    }
-    .stButton>button:hover {
-        background-color: #45a049;
-    }
-    </style>
+<style>
+.main {
+    background-color: #f4f6f9;
+}
+.stButton>button {
+    background-color: #2e86de;
+    color: white;
+    font-size: 16px;
+    border-radius: 8px;
+    height: 3em;
+    width: 100%;
+}
+.stButton>button:hover {
+    background-color: #1b4f72;
+}
+</style>
 """, unsafe_allow_html=True)
 
 # ---------------- LOAD MODEL ----------------
@@ -39,70 +39,90 @@ def load_model():
 model = load_model()
 
 # ---------------- SIDEBAR ----------------
-st.sidebar.title("📌 About This App")
+st.sidebar.title("🧠 About This Model")
 st.sidebar.write("""
-This application deploys a trained **Logistic Regression model**
-using Streamlit Community Cloud.
+This app predicts whether a patient is likely to have **Diabetes**
+using a trained **Logistic Regression model**.
 
-Developed for Machine Learning deployment.
+Dataset Features:
+- Pregnancies
+- Glucose
+- Blood Pressure
+- Skin Thickness
+- Insulin
+- BMI
+- Diabetes Pedigree Function
+- Age
 """)
 
 st.sidebar.markdown("---")
-st.sidebar.info("Built by Alex Anto 🚀")
+st.sidebar.info("Developed by Alex Anto 🚀")
 
 # ---------------- MAIN TITLE ----------------
-st.title("🚀 Logistic Regression Deployment Dashboard")
-st.markdown("### Interactive Machine Learning Prediction System")
+st.title("🩺 Diabetes Prediction System")
+st.markdown("### Machine Learning Deployment using Logistic Regression")
 
 st.markdown("---")
 
 # ---------------- INPUT SECTION ----------------
-st.subheader("🔢 Enter Feature Values")
+st.subheader("📋 Enter Patient Details")
 
 col1, col2 = st.columns(2)
 
 with col1:
-    feature1 = st.number_input("Feature 1", value=0.0)
-    feature2 = st.number_input("Feature 2", value=0.0)
+    pregnancies = st.number_input("Pregnancies", min_value=0, value=0)
+    glucose = st.number_input("Glucose Level", min_value=0.0, value=100.0, format="%.2f")
+    blood_pressure = st.number_input("Blood Pressure", min_value=0.0, value=70.0, format="%.2f")
+    skin_thickness = st.number_input("Skin Thickness", min_value=0.0, value=20.0, format="%.2f")
 
 with col2:
-    feature3 = st.number_input("Feature 3", value=0.0)
-    feature4 = st.number_input("Feature 4", value=0.0)
+    insulin = st.number_input("Insulin", min_value=0.0, value=80.0, format="%.2f")
+    bmi = st.number_input("BMI", min_value=0.0, value=25.0, format="%.2f")
+    dpf = st.number_input("Diabetes Pedigree Function", min_value=0.0, value=0.5, format="%.2f")
+    age = st.number_input("Age", min_value=0, value=30)
 
 st.markdown("---")
 
 # ---------------- PREDICTION ----------------
-if st.button("🔮 Predict Now"):
+if st.button("🔮 Predict Diabetes Risk"):
 
-    input_data = np.array([[feature1, feature2, feature3, feature4]])
+    input_data = np.array([[pregnancies,
+                            glucose,
+                            blood_pressure,
+                            skin_thickness,
+                            insulin,
+                            bmi,
+                            dpf,
+                            age]])
 
     prediction = model.predict(input_data)
     probability = model.predict_proba(input_data)
 
+    diabetic_prob = float(probability[0][1])
+    non_diabetic_prob = float(probability[0][0])
+
     st.subheader("📊 Prediction Result")
 
     if prediction[0] == 1:
-        st.success("Predicted Class: 1")
+        st.error("⚠ High Risk: Patient is Likely Diabetic")
     else:
-        st.error("Predicted Class: 0")
+        st.success("✅ Low Risk: Patient is Likely Not Diabetic")
 
-    st.write("### 📈 Prediction Probability")
+    st.markdown("### 📈 Risk Probability")
 
-    st.progress(float(probability[0][1]))
+    st.progress(diabetic_prob)
 
-    st.write("Probability Distribution:")
-    st.write({
-        "Class 0": float(probability[0][0]),
-        "Class 1": float(probability[0][1])
-    })
+    col3, col4 = st.columns(2)
+    col3.metric("Diabetes Probability", f"{diabetic_prob*100:.2f}%")
+    col4.metric("No Diabetes Probability", f"{non_diabetic_prob*100:.2f}%")
 
 st.markdown("---")
 
 # ---------------- FOOTER ----------------
 st.markdown("""
 <center>
-    <small>
-    Logistic Regression Model Deployment | Streamlit Cloud | 2026
-    </small>
+<small>
+Diabetes Prediction App | Logistic Regression | Streamlit Deployment | 2026
+</small>
 </center>
 """, unsafe_allow_html=True)
